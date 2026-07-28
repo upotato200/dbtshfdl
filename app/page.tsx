@@ -9,12 +9,23 @@ type Game = {
   winner: string | null; log: string[]; revision: number;
 };
 
-const BOARD = [
-  {x:8,y:92},{x:29,y:92},{x:50,y:92},{x:71,y:92},{x:92,y:92},
-  {x:92,y:71},{x:92,y:50},{x:92,y:29},{x:92,y:8},{x:71,y:8},
-  {x:50,y:8},{x:29,y:8},{x:8,y:8},{x:8,y:29},{x:8,y:50},{x:8,y:71},
-  {x:25,y:75},{x:37,y:63},{x:50,y:50},{x:63,y:37}
+const TRACK = [
+  {x:92,y:92},
+  {x:92,y:75},{x:92,y:58},{x:92,y:42},{x:92,y:25},
+  {x:92,y:8},
+  {x:75,y:8},{x:58,y:8},{x:42,y:8},{x:25,y:8},
+  {x:8,y:8},
+  {x:8,y:25},{x:8,y:42},{x:8,y:58},{x:8,y:75},
+  {x:8,y:92},
+  {x:25,y:92},{x:42,y:92},{x:58,y:92},{x:75,y:92}
 ];
+const DIAGONAL_SPOTS = [
+  {x:22,y:78},{x:36,y:64},
+  {x:64,y:36},{x:78,y:22},
+  {x:78,y:78},{x:64,y:64},
+  {x:36,y:36},{x:22,y:22}
+];
+const BOARD_SPOTS = [...TRACK, ...DIAGONAL_SPOTS];
 const COLORS = ["#ff7456", "#35b8a0", "#7557d8", "#e0a82e"];
 
 function makeId() {
@@ -131,8 +142,8 @@ export default function Home() {
             <div className="board">
               <div className="moon">달빛<br/><b>윷마당</b></div>
               <div className="route diagonal a"/><div className="route diagonal b"/>
-              {BOARD.map((p,i)=><div key={i} className={`spot ${[0,4,8,12,18].includes(i)?"big":""}`} style={{left:`${p.x}%`,top:`${p.y}%`}}><span>{i===0?"출발":""}</span></div>)}
-              {stacked.map(({player,piece,count}) => <button key={`${player.id}-${piece}`} className="piece" style={{left:`${BOARD[piece].x}%`,top:`${BOARD[piece].y}%`,background:player.color}} onClick={()=>myTurn && game.pending && player.id===me && call("move",{pieceIndex:player.pieces.findIndex(x=>x===piece)})}>{count>1 ? count : player.name[0]}</button>)}
+              {BOARD_SPOTS.map((p,i)=><div key={i} className={`spot ${[0,5,10,15].includes(i)?"big":""}`} style={{left:`${p.x}%`,top:`${p.y}%`}}><span>{i===0?"출발 · 완주":""}</span></div>)}
+              {stacked.map(({player,piece,count}) => <button key={`${player.id}-${piece}`} className="piece" style={{left:`${TRACK[piece].x}%`,top:`${TRACK[piece].y}%`,background:player.color}} onClick={()=>myTurn && game.pending && player.id===me && call("move",{pieceIndex:player.pieces.findIndex(x=>x===piece)})}>{count>1 ? count : player.name[0]}</button>)}
             </div>
             <div className="tray">
               <div><small>최근 결과</small><strong>{game.rollName || "—"}</strong></div>

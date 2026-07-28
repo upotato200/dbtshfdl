@@ -35,3 +35,22 @@ test("keeps the multiplayer start rule on the server", async () => {
   );
   assert.match(api, /game\.phase = "playing"/);
 });
+
+test("renders all eight spaces on the two diagonals", async () => {
+  const page = await readFile(new URL("app/page.tsx", root), "utf8");
+  const diagonalBlock = page.match(
+    /const DIAGONAL_SPOTS = \[([\s\S]*?)\];/,
+  )?.[1];
+
+  assert.ok(diagonalBlock);
+  assert.equal(diagonalBlock.match(/\{x:/g)?.length, 8);
+  assert.match(page, /const BOARD_SPOTS = \[\.\.\.TRACK, \.\.\.DIAGONAL_SPOTS\]/);
+});
+
+test("starts and finishes at the bottom-right corner", async () => {
+  const page = await readFile(new URL("app/page.tsx", root), "utf8");
+
+  assert.match(page, /const TRACK = \[\s*\{x:92,y:92\}/);
+  assert.match(page, /i===0\?"출발 · 완주"/);
+  assert.match(page, /\[0,5,10,15\]\.includes\(i\)/);
+});
