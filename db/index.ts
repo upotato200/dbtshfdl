@@ -1,13 +1,25 @@
-import { env } from "cloudflare:workers";
-import { drizzle } from "drizzle-orm/d1";
-import * as schema from "./schema";
+import { Pool } from "pg";
 
-export function getDb() {
-  if (!env.DB) {
+const globalForDatabase = globalThis as typeof globalThis & {
+  railwayPool?: Pool;
+};
+
+export function getPool() {
+  const connectionString = process.env.DATABASE_URL;
+  if (!connectionString) {
     throw new Error(
-      "Cloudflare D1 binding `DB` is unavailable. Set the `d1` field in .openai/hosting.json to `DB` or let your control plane inject the real binding values before using the database."
+      "DATABASE_URL이 없습니다. Railway 웹 서비스에 Postgres 참조 변수를 추가해 주세요.",
     );
   }
 
-  return drizzle(env.DB, { schema });
+  if (!globalForDatabase.railwayPool) {
+    globalForDatabase.railwayPool = new Pool({
+      connectionString,
+      max: 10,
+      idleTimeoutMillis: 30_000,
+      connectionTimeoutMillis: 10_000,
+    });
+  }
+
+  return globalForDatabase.railwayPool;
 }
