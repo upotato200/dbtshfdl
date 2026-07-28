@@ -1,8 +1,21 @@
-import { integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
+import {
+  index,
+  integer,
+  jsonb,
+  pgTable,
+  timestamp,
+  varchar,
+} from "drizzle-orm/pg-core";
 
-export const rooms = sqliteTable("rooms", {
-  code: text("code").primaryKey(),
-  state: text("state").notNull(),
-  revision: integer("revision").notNull().default(0),
-  updatedAt: text("updated_at").notNull(),
-});
+export const rooms = pgTable(
+  "rooms",
+  {
+    code: varchar("code", { length: 6 }).primaryKey(),
+    state: jsonb("state").notNull(),
+    revision: integer("revision").notNull().default(0),
+    updatedAt: timestamp("updated_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => [index("rooms_updated_at_idx").on(table.updatedAt)],
+);
